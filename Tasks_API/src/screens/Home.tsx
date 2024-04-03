@@ -8,6 +8,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import CategoryItem from "../components/CategoryItem";
 import ItemCard from "../components/ItemCard";
 import { categories } from "../utils/data";
+import * as SQLite from "expo-sqlite";
 
 const Home = () => {
     const { user } = useContext(UserContext);
@@ -18,69 +19,106 @@ const Home = () => {
     const [taskList, setTaskList] = useState<Task[]>([]);
     const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
 
-    // Função para salvar tarefas em AsyncStorage
-    const storeTasks = async (tasks: Task[]) => {
-        try {
-            await AsyncStorage.setItem('tasks', JSON.stringify(tasks));
-        } catch (error) {
-            console.error('Error storing tasks:', error);
-        }
-    };
+    function openDatabase() {
+        const db = SQLite.openDatabase("db.db");
+        return db
+    }
+
+    const db = openDatabase();
 
     // Função para recuperar tarefas de AsyncStorage
     const getTasks = async () => {
-        try {
-            const storedTasks = await AsyncStorage.getItem('tasks');
-            if (storedTasks !== null) {
-                setTaskList(JSON.parse(storedTasks));
-            }
-        } catch (error) {
-            console.error('Error retrieving tasks:', error);
-        }
+        db.transaction((tx) => {
+            tx.executeSql(
+                `select * from tasks where completed = 0;`,
+                [],
+                (_, { rows: { _array } }) => {
+                    setTaskList(_array)
+                }
+            )
+        })
     };
 
-    // Função para chamar getTasks e recuperar os valores
-    const getData = async () => {
-        await getTasks();
-    };
+    const getTasksByCategory = (category: string) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                `select * from tasks where completed = 0 and category = ?;`,
+                [category],
+                (_, { rows: { _array } }) => {
+                    setTaskList(_array);
+                }
+            )
+        })
+    }
+
+    const getCompletedTasks = () => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                `select * from tasks where completed = 1;`,
+                [],
+                (_, { rows: { _array } }) => {
+                    setTaskList(_array);
+                }
+            )
+        })
+    }
 
     useEffect(() => {
-        getData();
+        db.transaction((tx) => {
+            tx.executeSql(
+                "create table if not exists tasks (id integer primary key not null, completed int, title text, category text)"
+            )
+        })
+        getTasks();
     }, []);
 
     // Função para adicionar uma nova tarefa
     const handleAddTask = () => {
-        if (taskInput.trim() !== "") {
-            const newTaskList = [...taskList];
-            const newTask: Task = {
-                id: Date.now().toString(), // Gera um ID único para a nova tarefa
-                title: taskInput,
-                completed: false,
-                category: categoryValue || "uncategorized" // Define a categoria como "uncategorized" se não houver categoria selecionada
-            };
-            newTaskList.push(newTask);
-            storeTasks(newTaskList);
-            getData(); // Atualiza a lista de tarefas
-            setTaskInput(""); // Limpa o input
+        if (taskInput !== "" && categoryValue) {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    `insert into tasks (completed, title, category) values (0, ?, ?)`,
+                    [taskInput, categoryValue], 
+                )
+                tx.executeSql(
+                    `select * from tasks where completed = 0;`,
+                    [],
+                    (_, { rows: { _array } }) => {
+                        setTaskList(_array)
+                    }
+                )
+            })
         }
+
+        setTaskInput("");
+        setCategoryValue(null);
     };
 
     // Função para remover uma tarefa
-    const handleRemoveTask = (id: string) => {
-        const filtered = taskList.filter(task => task.id !== id);
-        storeTasks(filtered);
-        getData(); // Atualiza a lista de tarefas
+    const handleRemoveTask = (id: number) => {
+        db.transaction((tx) => {
+            tx.executeSql(`delete from tasks where id = ?;`, [id])
+            tx.executeSql(
+                `select * from tasks where completed = 0;`,
+                [],
+                (_, { rows: { _array } }) => {
+                    setTaskList(_array);
+                }
+            )
+        })
     };
 
     // Função para marcar uma tarefa como concluída
-    const handleDoneTask = (id: string) => {
-        const clonedList = [...taskList];
-        const index = clonedList.findIndex(task => task.id === id);
-        if (index !== -1) {
-            clonedList[index].completed = true;
-            storeTasks(clonedList);
-            getData(); // Atualiza a lista de tarefas
-        }
+    const handleDoneTask = (id: number) => {
+        db.transaction((tx) => {
+            tx.executeSql(`update tasks set completed = ? where id = ?`, [1, id])
+            tx.executeSql(
+                `select * from tasks where completed = 0;`, 
+                [],
+                (_, { rows: { _array } }) => {
+                    setTaskList(_array);
+                })
+        })
     };
 
     // Função para filtrar tarefas por categoria
@@ -88,13 +126,13 @@ const Home = () => {
         setSelectedCategory(type);
         switch (type) {
             case 'all':
-                setFilteredTasks(taskList.filter(task => !task.completed));
+                getTasks();
                 break;
             case 'done':
-                setFilteredTasks(taskList.filter(task => task.completed));
+                getCompletedTasks();
                 break;
             default:
-                setFilteredTasks(taskList.filter(task => task.category === type));
+                getTasksByCategory(type);
                 break;
         }
     };
