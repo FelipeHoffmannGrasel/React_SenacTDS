@@ -1,9 +1,10 @@
 import { ReactNode, createContext, useState } from "react";
+
 import { Task } from "../types/Task";
-import React from "react";
+import React from "react"
 import * as SQLite from "expo-sqlite";
 import moment from "moment";
-import * as ImagePicker from "expo-image-picker";
+import * as ImagePicker from "expo-image-picker"
 
 
 type TaskContextProps = {
