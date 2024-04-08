@@ -9,6 +9,8 @@ import CategoryItem from "../components/CategoryItem";
 import ItemCard from "../components/ItemCard";
 import { categories } from "../utils/data";
 import * as SQLite from "expo-sqlite";
+import Animated, { BounceInDown, FlipInYRight, FlipOutYRight } from "react-native-reanimated";
+
 
 const Home = () => {
     const { user } = useContext(UserContext);
@@ -26,7 +28,6 @@ const Home = () => {
 
     const db = openDatabase();
 
-    // Função para recuperar tarefas de AsyncStorage
     const getTasks = async () => {
         db.transaction((tx) => {
             tx.executeSql(
@@ -72,7 +73,6 @@ const Home = () => {
         getTasks();
     }, []);
 
-    // Função para adicionar uma nova tarefa
     const handleAddTask = () => {
         if (taskInput !== "" && categoryValue) {
             db.transaction((tx) => {
@@ -94,7 +94,6 @@ const Home = () => {
         setCategoryValue(null);
     };
 
-    // Função para remover uma tarefa
     const handleRemoveTask = (id: number) => {
         db.transaction((tx) => {
             tx.executeSql(`delete from tasks where id = ?;`, [id])
@@ -108,7 +107,8 @@ const Home = () => {
         })
     };
 
-    // Função para marcar uma tarefa como concluída
+  
+    
     const handleDoneTask = (id: number) => {
         db.transaction((tx) => {
             tx.executeSql(`update tasks set completed = ? where id = ?`, [1, id])
@@ -121,7 +121,6 @@ const Home = () => {
         })
     };
 
-    // Função para filtrar tarefas por categoria
     const handleSelectedCategory = (type: string) => {
         setSelectedCategory(type);
         switch (type) {
@@ -196,17 +195,19 @@ const Home = () => {
                     keyExtractor={item => item.id.toString()}
                 />
             </View>
-            <FlatList
-                data={filteredTasks}
-                renderItem={({ item }) => (
-                    <ItemCard
-                        task={item}
-                        handleDoneTask={handleDoneTask}
-                        handleRemoveTask={handleRemoveTask}
-                    />
-                )}
-                keyExtractor={item => item.id}
-            />
+            <Animated.View entering={BounceInDown}>
+                <FlatList
+                    data={taskList}
+                    renderItem={({ item }) => (
+                        <ItemCard
+                            task={item}
+                            handleDoneTask={handleDoneTask}
+                            handleRemoveTask={handleRemoveTask}
+                        />
+                    )}
+                    keyExtractor={item => item.id}
+                />
+            </Animated.View>
         </View>
     );
 };
