@@ -40,12 +40,11 @@ export const HomeRoutes = () => {
             <Text style={{color:'white'}}>Criar</Text>
             </TouchableOpacity>
           ),
-         
         }}  
         
         
       />
-       <Stack.Screen
+      <Stack.Screen
         name="Criar"
         component={Criar}
         options={{

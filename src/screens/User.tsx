@@ -3,7 +3,7 @@ import { View, Text, Image, Button, StyleSheet } from 'react-native';
 import { UserContext } from '../contexts/UserContext';
 
 const User = () => {
-    const { user, logout } = useContext(UserContext)
+    const { user, logout } = useContext(UserContext) //teste 1
 
 
     return (
