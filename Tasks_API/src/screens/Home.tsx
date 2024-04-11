@@ -58,6 +58,7 @@ const Home = () => {
                 [],
                 (_, { rows: { _array } }) => {
                     setTaskList(_array);
+                    
                 }
             )
         })
@@ -205,7 +206,7 @@ const Home = () => {
                         handleRemoveTask={handleRemoveTask}
                     />
                 )}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item.id.toString()}
             />
         </View>
     );
