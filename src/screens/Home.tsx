@@ -59,7 +59,6 @@ const Home = () => {
                 [],
                 (_, { rows: { _array } }) => {
                     setTaskList(_array);
-                    
                 }
             )
         })
@@ -68,7 +67,7 @@ const Home = () => {
     useEffect(() => {
         db.transaction((tx) => {
             tx.executeSql(
-                "create table if not exists tasks (id integer primary key not null, completed int, title text, category text)"
+                "create table if not exists tasks (id integer primary key not null, completed int, title text, category text, images text)"
             )
         })
         getTasks();
@@ -196,19 +195,6 @@ const Home = () => {
                     keyExtractor={item => item.id.toString()}
                 />
             </View>
-<<<<<<< HEAD
-            <FlatList
-                data={filteredTasks}
-                renderItem={({ item }) => (
-                    <ItemCard
-                        task={item}
-                        handleDoneTask={handleDoneTask}
-                        handleRemoveTask={handleRemoveTask}
-                    />
-                )}
-                keyExtractor={item => item.id.toString()}
-            />
-=======
             <Animated.View entering={BounceInDown}>
                 <FlatList
                     data={taskList}
@@ -219,10 +205,9 @@ const Home = () => {
                             handleRemoveTask={handleRemoveTask}
                         />
                     )}
-                    keyExtractor={item => item.id}
+                    keyExtractor={item => item.id.toString()}
                 />
             </Animated.View>
->>>>>>> 974e4cb3a77c695323a50b673c108f33f835a547
         </View>
     );
 };

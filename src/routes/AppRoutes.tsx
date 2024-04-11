@@ -3,7 +3,6 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import User from "../screens/User";
 import Home from "../screens/Home";
-import { colors } from "../Colors/colors";
 import { useNavigation } from "@react-navigation/native";
 import { TouchableOpacity,Text } from "react-native";
 import { FontAwesome } from '@expo/vector-icons';
@@ -40,19 +39,18 @@ export const HomeRoutes = () => {
             <Text style={{color:'white'}}>Criar</Text>
             </TouchableOpacity>
           ),
-         
         }}  
         
         
       />
-       <Stack.Screen
+      <Stack.Screen
         name="Criar"
         component={Criar}
         options={{
           headerTitle: "Criar",
           headerTintColor:'white',
           headerStyle: {
-            backgroundColor: colors.cor2,
+            backgroundColor: '#252525',
           },
         }}
       />
@@ -64,7 +62,7 @@ export const HomeRoutes = () => {
           headerTitle: "Detalhes",
           headerTintColor: "white",
           headerStyle: {
-            backgroundColor: colors.cor2
+            backgroundColor: '#252525'
           }
         }}
         /> 
@@ -81,8 +79,8 @@ export const AppRoutes = () => {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarActiveBackgroundColor: colors.cor3,
-        tabBarInactiveBackgroundColor: colors.cor2,
+        tabBarActiveBackgroundColor: '#252525',
+        tabBarInactiveBackgroundColor: '#252525',
       }}
     >
       <Tab.Screen
@@ -90,7 +88,7 @@ export const AppRoutes = () => {
         component={HomeRoutes}
         options={{
           tabBarIcon: () => (
-            <MaterialIcons name="home" size={30} color={colors.cor6} />
+            <MaterialIcons name="home" size={30} color={'#252525'} />
           ),
           headerTransparent: true,
         }}
@@ -100,7 +98,7 @@ export const AppRoutes = () => {
         component={User}
         options={{
           tabBarIcon: () => (
-            <MaterialIcons name="person" size={30} color={colors.cor6} />
+            <MaterialIcons name="person" size={30} color={'#252525'} />
           ),
           headerTransparent: true,
         }}

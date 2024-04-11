@@ -9,8 +9,7 @@ export default function App() {
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <RootSiblingParent>
-                <TaskContextProvider> {
-                    }
+                <TaskContextProvider>                   
                     <Routes />
                 </TaskContextProvider>
             </RootSiblingParent>
